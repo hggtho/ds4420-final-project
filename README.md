@@ -13,8 +13,9 @@ The project will explore how crime changes over time and across different types 
 
 **Two main modeling approaches:**
 1. Time series modeling (R):
+   - Analyzed past trends and forecast future crime levels
 
-2. Bayesian Modeling (Python):
+3. Bayesian Modeling (Python):
 
 ## Data
 
