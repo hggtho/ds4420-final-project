@@ -1,5 +1,5 @@
 ---
-title: "DS 4420 HW4: Time Series"
+title: "DS 4420 Final Project"
 author: "EmilyNguyen, LenaTong"
 date: "2026-03-12"
 output: pdf_document
@@ -21,6 +21,7 @@ library(ggplot2)  # For visualization
 library(knitr) # For pretty table
 library(dplyr) # For data aggregation
 library(lubridate)
+library(brms)
 ```
 
 ## Load the dataset
@@ -66,15 +67,67 @@ ggplot(daily_crimes, aes(x = Date, y = Count)) +
   ylab('Number of Crimes') +
   theme_minimal()
 ```
-
-## ACF Plot
+We noticed the number of occured crime dropped drastically after the middle of 2024. The reason could be there are still many hidden crimes that haven't been reported to the police in the recent years. To make the model work more efficiently, we decided to only use data from 2020 to 2024 (end of 2023) and dropping all the rest.
 
 ```{r}
-acf(daily_crimes$Count, main = "ACF Plot for Number of Crimes")
+# filter for years 2022-2024
+daily_crimes_cleaned <- daily_crimes %>%
+  filter(Date >= "2020-03-01" & Date <= "2024-03-01")
+
+ggplot(daily_crimes_cleaned, aes(x = Date, y = Count)) +
+  geom_line() +
+  ggtitle('Number of Crimes in Los Angeles over time') +
+  xlab('Date') +
+  ylab('Number of Crimes') +
+  theme_minimal()
 ```
-## PACF Plot for Number of Crimes
+```{r}
+crimes <- daily_crimes_cleaned %>%
+  mutate(
+    Year = year(Date),
+    Month = month(Date),
+    DayOfWeek = wday(Date),
+    DayOfYear = yday(Date),
+    IsWeekend = ifelse(DayOfWeek %in% c(1, 7), 1, 0),
+    WeekOfYear = week(Date)
+  )
+```
+
 
 ```{r}
-pacf(daily_crimes$Count, main = "PACF Plot for Number of Crimes")
+# Split: Train = 2020-2023, Test = 2024
+train_data <- crimes %>% filter(Year < 2024)
+test_data <- crimes %>% filter(Year == 2024)
+
+cat("Training data:", nrow(train_data), "days (2020-2023)\n")
+cat("Test data:", nrow(test_data), "days (2024)\n")
+```
+
+## Bayesian Model
+
+### Define prior function
+```{r}
+# Define priors
+crime_priors <- c(
+  prior(normal(5.5, 0.5), class = "Intercept"),  # log(~250 crimes/day)
+  prior(normal(0, 0.3), class = "b")              # Weak effect priors
+)
+```
+
+### Fit Bayesian Poisson regression
+
+```{r}
+model <- brm(
+  Count ~ DayOfWeek + Month + IsWeekend,
+  family = poisson(),
+  data = train_data,
+  prior = crime_priors,
+  chains = 4,
+  iter = 1000,
+  warmup = 180
+)
+# Check model summary
+summary(model)
+
 ```
 
