@@ -13,7 +13,7 @@ This project analyzes crime data from 2020 to 2024 to identify patterns and tren
 The project will explore how crime changes over time and across offense types using data visualization and statistical analysis.
 
 **Two main modeling approaches:**
-1. Time series modeling (Manually in Python):
+1. Time series modeling (manually in Python):
    - Getting ACF and PACF plots to determine the number of lags we will use in later steps.
    - Analyzing past trends from 2020-2023 and forecasting future crime numbers in 2024.
 
