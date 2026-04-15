@@ -23,6 +23,6 @@ The project will explore how crime changes over time and across offense types us
 
 ## Data
 
-We use a dataset that includes crime incidents in the City of Los Angeles from 2020 to 2025. However, the initial file is really huge, so we have to clean it up (removing irrelevant columns and missing rows) to reduce the dataset size before uploading to git.
+We use a dataset that includes crime incidents in the City of Los Angeles from 2020 to 2025. However, the initial file is very large, so we need to clean it up (removing irrelevant columns and missing rows) to reduce the dataset size before uploading it to Git.
 
 Source: data.gov
