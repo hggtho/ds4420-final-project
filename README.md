@@ -14,10 +14,10 @@ This project analyzes crime data from 2020 to 2024 to identify patterns and tren
 The project will explore how crime changes over time and across different types of offenses using data visualization and statistical analysis.
 
 **Two main modeling approaches:**
-1. Time series modeling (R):
+1. Time series modeling (Python):
    - Analyzed past trends and forecast future crime levels
 
-3. Bayesian Modeling (Python):
+3. Bayesian Modeling (R):
 
 ## Data
 
