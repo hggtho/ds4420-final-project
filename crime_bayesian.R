@@ -51,7 +51,8 @@ ggplot(daily_crimes_cleaned, aes(x = Date, y = Count)) +
   theme_minimal()
 
 ## Create new dataframe: 
-# Use only relevant features: Year, Month, Day of Week, Day of Year, Weekened or not, and Week of Year
+# Use only relevant features: Year, Month, Day of Week, Day of Year, 
+# Weekened or not, and Week of Year
 crimes <- daily_crimes_cleaned %>%
   mutate(
     Year = year(Date),
@@ -159,23 +160,46 @@ crime_by_area <- crime %>%
     Year = year(Date)
   )
 
+# Split: Train = 2020-2023, Test = 2024
+train <- crime_by_area %>% filter(Year < 2024)
+test <- crime_by_area %>% filter(Year == 2024)
 
 # Check unique areas
 print("Areas in data:\n")
 print(unique(crime_by_area$AREA.NAME))
 
-area_prior = c(
-  prior(normal(4, 1), class = "Intercept"),
-  prior(normal(0, 0.5), class = "b"),
-  prior(cauchy(0, 1), class = "sd"),
-  prior(gamma(2, 0.1), class = "shape"))
-  
+# Define priors
+area_prior <- c(
+  prior(normal(5, 1), class = "Intercept"),   
+  prior(normal(0, 5), class = "b")
+)
 
+# We use negative poisson models 
 model_area <- brm(
-  Count ~ DayOfWeek + MonthNum + IsWeekend + (1 | AREA.NAME),
-  family = negbinomial(),
-  data = crime_by_area %>% filter(Year < 2024),
+  Count ~ DayOfWeek + MonthNum + AREA.NAME,
+  family = poisson(),
+  data = train,
   prior = area_prior,
   chains = 4,
-  iter = 1000
+  iter = 1000,
+  warmup = 180
 )
+summary(model_area)
+plot(model_area)
+
+
+# Predict for specific area and time
+# Example: Hollywood in February 2024
+predictions_specific <- test %>%
+  filter(AREA.NAME == "Hollywood", month(Date) == 2)
+
+preds <- predict(model_area, newdata = predictions_specific)
+predictions_specific$Predicted <- preds[, "Estimate"]
+
+print(predictions_specific)
+
+# See the mean of predicted number of crime
+mean(predictions_specific$Predicted)
+
+# See the mean of true number of crime
+mean(predictions_specific$Count)
