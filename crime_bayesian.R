@@ -71,8 +71,8 @@ test_data <- crimes %>% filter(Year == 2024)
 
 # Define priors
 crime_priors <- c(
-  prior(normal(5.5, 0.5), class = "Intercept"),  # log(~250 crimes/day)
-  prior(normal(0, 0.3), class = "b")              # Weak effect priors
+  prior(normal(5.5, 0.5), class = "Intercept"),  
+  prior(normal(0, 0.3), class = "b")              
 )
 
 # We use Poisson distribution here because the number of crimes 
@@ -191,7 +191,7 @@ plot(model_area)
 # Predict for specific area and time
 # Example: Hollywood in February 2024
 predictions_specific <- test %>%
-  filter(AREA.NAME == "Hollywood", month(Date) == 2)
+  filter(AREA.NAME == "Hollywood", month(Date) == 5)
 
 preds <- predict(model_area, newdata = predictions_specific)
 predictions_specific$Predicted <- preds[, "Estimate"]
@@ -203,3 +203,8 @@ mean(predictions_specific$Predicted)
 
 # See the mean of true number of crime
 mean(predictions_specific$Count)
+
+# Calculate the mean absolute error
+mae <- mean(abs(predictions_specific$Count - predictions_specific$Predicted))
+
+print(paste("MAE:", round(mae, 2)))
